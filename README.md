@@ -16,7 +16,8 @@ npm install iobroker.koubachi
 ```
 
 #### Requirements
-Koubachi Account and API Key
+To get the app_key and user_credentials, go to Koubachi labs at http://labs.koubachi.com and sign up for access. 
+See also http://koubachi.com  and http://labs.koubachi.com/documentations?locale=en
 
 ### License
 The MIT License (MIT)
