@@ -1,5 +1,5 @@
 ![Logo](admin/koubachi.png)
-# ioBroker.koubachi
+## ioBroker.koubachi
 
 Adapter for Koubachi Sensors
 
