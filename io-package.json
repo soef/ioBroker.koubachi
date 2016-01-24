@@ -1,0 +1,27 @@
+{
+  "common": {
+    "name": "koubachi",
+    "version": "0.0.2",
+    "title": "Koubachi",
+    "desc": {
+      "en": "Koubachi Plant Sensor",
+      "de": "Koubachi Pflansen Sensor",
+      "ru": "Koubachi Plant Sensor"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "koubachi.png",
+    "extIcon": "https://raw.githubusercontent.com/soef/iobroker.koubachi/master/admin/koubachi.png",
+    "readme": "https://github.com/soef/iobroker.koubachi/blob/master/README.md",
+    "loglevel": "info",
+    "type": "hardware"
+  },
+  "native": {
+    "appKey": "",
+    "userCredentials":  ""
+  },
+  "instanceObjects": [
+  ],
+  "objects": [
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "iobroker.koubachi",
+  "version": "0.0.2",
+  "description": "Koubachi Adapter",
+  "author": {
+    "name": "soef",
+    "email": "soef@gmx.net"
+  },
+  "contributors": [
+    {
+      "name": "soef",
+      "email": "soef@gmx.net"
+    }
+  ],
+  "homepage": "https://github.com/soef/iobroker.koubachi",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "koubachi",
+    "plant Sensor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soef/iobroker.koubachi"
+  },
+  "dependencies": {
+    "koubachi": "^0.0.4"
+  },
+  "devDependencies": {
+  },
+  "bugs": {
+    "url": "https://github.com/soef/iobroker.koubachi/issues"
+  },
+  "readmeFilename": "README.md"
+}
