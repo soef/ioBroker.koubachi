@@ -4,7 +4,7 @@
 Adapter for Koubachi Sensors
 
 ### Important
-#### Not yet unusable. At the moment, only a base. More shortly.
+##### Not yet unusable. At the moment, only a base. More shortly.
 
 #### Configuration
 App Key and User Credentials reqiured
