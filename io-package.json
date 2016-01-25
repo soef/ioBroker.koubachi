@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "koubachi",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "title": "Koubachi",
     "desc": {
       "en": "Koubachi Plant Sensor",
@@ -18,7 +18,8 @@
   },
   "native": {
     "appKey": "",
-    "userCredentials":  ""
+    "userCredentials": "",
+    "intervall": 60
   },
   "instanceObjects": [
   ],

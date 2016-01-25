@@ -43,6 +43,10 @@
             "de": "App Key",
             "en": "App Key"
         },
+        "Intervall in minutes": {
+            "de": "Intervall in Minuten",
+            "en": "Intervall in minutes"
+        },
         "on save adapter restarts with new config immediately": {
             "de": "Beim Speichern von Einstellungen der Adapter wird sofort neu gestartet.",
             "ru": "Сразу после сохранения настроек драйвер перезапуститься с новыми значениями"
@@ -101,13 +105,19 @@
         <tr><td class="translate">App Key</td><td colspan="2"><input class="value number" id="appKey" type="input" size="34" /></td></tr>
     </table>
 
-    <h4 class="translate">To Do</h4>
+    <h4 class="translate">Daemon</h4>
+    <table id="devices"></table><div id="pager-devices"></div>
+
+    <table>
+        <tr><td class="translate">Intervall in minutes</td><td colspan="2"><input class="value number" id="intervall" type="input" size="10" /></td></tr>
+    </table>
+
+
+    <h4 class="translate">Info</h4>
     <table id="devices"></table><div id="pager-devices"></div>
     To get the <em>app_key</em> and <em>user_credentials</em>, go to <a href="http://labs.koubachi.com">Koubachi labs</a> and <br>sign up for access. 
     See also <a href="http://koubachi.com">koubachi</a> API <a href="http://labs.koubachi.com/documentations?locale=en">documentation</a>
 
-    <h4 class="translate">Info</h4>
-    <table id="devices"></table><div id="pager-devices"></div>
     <p class="translate">on save adapter restarts with new config immediately</p>
 
 </div>
