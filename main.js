@@ -4,6 +4,9 @@ var utils = require(__dirname + '/lib/utils'),
     Koubachi = require('koubachi'),
     koubachi = new Koubachi.Koubachi();
 
+var soef = require(__dirname + '/lib/soef'),
+    g_devices = soef.Devices();
+
 var adapter = utils.adapter({
     name: 'koubachi',
     
@@ -14,52 +17,27 @@ var adapter = utils.adapter({
             callback();
         }
     },
-    discover: function (callback) {
-        //adapter.log.info("adapter koubachi discovered");
-    },
-    install: function (callback) {
-        //adapter.log.info("adapter koubachi installed");
-    },
-    uninstall: function (callback) {
-        //adapter.log.info("adapter koubachi uninstalled");
-    },
+    //discover: function (callback) {
+    //    //adapter.log.info("adapter koubachi discovered");
+    //},
+    //install: function (callback) {
+    //    //adapter.log.info("adapter koubachi installed");
+    //},
+    //uninstall: function (callback) {
+    //    //adapter.log.info("adapter koubachi uninstalled");
+    //},
     //objectChange: function (id, obj) {
     //    //adapter.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
     //},
     //stateChange: function (id, state) {
     //    //adapter.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
     //},
-    ready: function () {
-        main();
-    }
+    ready: main
+
 });
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function setObject(name, stateName, device, callback) {
-    adapter.setObject(name + '.' + stateName, {
-        type: 'state',
-        common: {
-            name: name,
-            role: 'state',
-            type: typeof device.val,
-            write: false,
-        },
-        native: {}
-    }, callback);
-}
-
-function setState(name, stateName, device, callback) {
-    if (typeof device !== 'object') return;
-    adapter.setState(name + '.' + stateName, { val: device[stateName], ack: true });
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var devices = {};
-var plants = {};
 
 var deviceStateNames = [
     "number_of_readings",
@@ -95,77 +73,16 @@ var plantStateNames = [
     "vdm_light_level"
 ];
 
-function createPlant(deviceName, plant, callback) {
-    if (!plant) return;
-    var states = [];
-    var name = deviceName + '.' + plant.name;
-    
-    function addState() {
-        if (states.length) {
-            var stateName = states.pop();
-            setObject(name, stateName, plant, function (err, obj) {
-                setState(name, stateName, plant);
-                setTimeout(addState(), 0);
-            });
-        } else {
-            if (callback) callback(0);
-        }
-    }
-    
-    adapter.setObject/*NotExists*/(name, {
-        type: 'channel', 
-        common: {
-            name: name, 
-            role: 'device'
-        },
-        native: {}
-    }, function (err, obj) {
-        for (var i = 0; i < plantStateNames.length; i++) states.push(plantStateNames[i]);
-        addState();
-    });
-}
-
-
-function createDevice(device, callback) {
-    if (!device) return;
-    var states = [];
-    var name = device.mac_address;
-
-    function addState() {
-        if (states.length) {
-            var stateName = states.pop();
-            var fullName = name + '.' + stateName;
-            setObject(name, stateName, device, function (err, obj) {
-                setState(name, stateName, device);
-                setTimeout(addState(), 0);
-            });
-        } else {
-            if (device.plants.length) createPlant(name, plants[device.plants[0].id], callback);
-        }
-    }
-    
-    adapter.setObject/*NotExists*/(name, {
-        type: 'device', 
-        common: {
-            name: device.plants.length ? plants[device.plants[0].id].name : name, 
-            role: 'device'
-        },
-        native: {}
-    }, function (err, obj) {
-        adapter.log.debug("Device " + obj.id + " created, adding States...")
-        for (var i = 0; i < deviceStateNames.length; i++) states.push(deviceStateNames[i]);
-        addState();
-    });
-}
 
 var nextReadingTime = new Date().getTime() + 24 * 60 * 60 * 1000;
 var nextIntervall = 120 * 60 * 1000;
 
-function checkIntervall() {
+function calculateNextIntervall() {
     var next = nextReadingTime;
     var now = new Date().getTime();
-    for (var i in devices) {
-        var date = new Date(devices[i].next_transmission);
+    for (var id in g_devices.states) {
+        if ((id.indexOf('.') >= 0) || !g_devices.has(id, 'next_transmission')) continue;
+        var date = new Date(g_devices.states[id].next_transmission);
         if ((next > date.getTime()) && (date.getTime() > now)) {
             next = date.getTime();
         };
@@ -183,72 +100,67 @@ function checkIntervall() {
 
 function updateStates(callback) {
 
-    koubachi.getPlants(function (err, results) {
+    koubachi.getPlants(function (err, _plants) {
         if (err) return;
-        var newPlants = {};
-        
-        for (var i = 0; i < results.length; i++) {
-            newPlants[results[i].plant.id] = results[i].plant;
+        var plants = {};
+        //for (var i = 0; i < _plants.length; i++) {
+        //    plants[_plants[i].plant.id] = _plants[i].plant;
+        //}
+        for (var i of _plants) {
+            plants[i.plant.id] = i.plant;
         }
-        koubachi.getDevices(function (err, results) {
-            if (err) return;
-            
-            for (var j = 0; j < results.length; j++) {
-                var device = results[j].device;
+        koubachi.getDevices(function (err, _devices) {
+            if (err || !_devices) return;
+            var dev = new g_devices.CState(); //name, device.plants.length ? plants[plantId].name : name, list);
+
+            for (var j = 0; j < _devices.length; j++) {
+                var device = _devices[j].device;
+                if (!device || !device.plants.length) continue;
                 var id = device.mac_address;
-                for (var i in deviceStateNames) {
-                    var stateName = deviceStateNames[i];
-                    if (devices[id][stateName] !== device[stateName]) {
-                        devices[id][stateName] = device[stateName];
-                        setState(id, stateName, device);
-                    }
+                var plantId = device.plants[0].id;
+                var name = plants[plantId].name ? plants[plantId].name : id
+                dev.setDevice (id, { showName: name, next_transmission: device.next_transmission} );
+
+                //for (var i = 0; i < deviceStateNames.length; i++) {
+                //    var stateName = deviceStateNames[i];
+                //    dev.add(stateName, device[stateName]);
+                //}
+                for (var i of deviceStateNames) {
+                    dev.add(i, device[i]);
                 }
-                if (!device.plants.length) continue;
-                var plant = newPlants[device.plants[0].id];
-                id += '.' + plant.name;
-                for (var i in plantStateNames) {
-                    var stateName = plantStateNames[i];
-                    if (plants[device.plants[0].id][stateName] !== plant[stateName]) {
-                        plants[device.plants[0].id][stateName] = plant[stateName];
-                        setState(id, stateName, plant);
-                    }
+
+                dev.setChannel(name);
+                //for (var i = 0; i < plantStateNames.length; i++) {
+                //    var stateName = plantStateNames[i];
+                //    dev.add(stateName, plants[plantId][stateName]);
+                //}
+                for (var i of  plantStateNames) {
+                    dev.add(i, plants[plantId][i]);
                 }
+
             }
-            checkIntervall();
+            g_devices.update(dev.list);
+
+            calculateNextIntervall();
             if (nextIntervall) {
                 setTimeout(updateStates, nextIntervall);
             }
         });
     });
-    //if (adapter.config.intervall) {
-    //    setTimeout(updateStates, adapter.config.intervall * 1000 * 60);
-    //}
 }
 
 
-
 function main() {
-    
-    koubachi.on('error', function (err) {
-        adapter.log.error("koubachi.on error");
-    }); //.setConfig(adapter.config.appKey, adapter.config.userCredentialsals);
 
-    koubachi.setConfig(adapter.config.appKey, adapter.config.userCredentials);
-    koubachi.getPlants(function (err, results) {
-        if (err) return adapter.log.error('getDevices: ' + err.message);
-        
-        for (var i = 0; i < results.length; i++) {
-            plants[results[i].plant.id] = results[i].plant;
-        }
-        koubachi.getDevices(function (err, results) {
-            if (err) return adapter.log.error('getDevices: ' + err.message);
-            
-            for (var i = 0; i < results.length; i++) {
-                devices[results[i].device.mac_address] = results[i].device;
-                createDevice(results[i].device);
-            }
-            setTimeout(updateStates, 10000);
-        });
+    g_devices.init(adapter, function (err) {
+
+        koubachi.on('error', function (err) {
+            adapter.log.error("koubachi.on error");
+        }); //.setConfig(adapter.config.appKey, adapter.config.userCredentialsals);
+
+        koubachi.setConfig(adapter.config.appKey, adapter.config.userCredentials);
+        updateStates ();
+
     });
     
     

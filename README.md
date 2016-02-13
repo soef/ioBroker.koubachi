@@ -20,10 +20,9 @@ To get the app_key and user_credentials, go to Koubachi labs at http://labs.koub
 See also http://koubachi.com  and http://labs.koubachi.com/documentations?locale=en
 
 ### License
-
 The MIT License (MIT)
 
-Copyright (c) 2016 soef <soef@gmx.net>
+Copyright (c) 2015-2016 soef <soef@gmx.net>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
