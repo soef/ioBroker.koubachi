@@ -32,7 +32,11 @@ var adapter = utils.adapter({
     //stateChange: function (id, state) {
     //    //adapter.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
     //},
-    ready: main
+    ready: function () {
+        g_devices.init(adapter, function(err) {
+            main();
+        });
+    }
 
 });
 
@@ -91,7 +95,6 @@ function calculateNextIntervall() {
         nextReadingTime = next;
         nextIntervall = nextReadingTime - now + 5000;
         if (nextIntervall < 1000) nextIntervall = 10000;
-        //var s = adapter.formatDate(new Date(nextReadingTime), "YYYY-MM-DD hh:mm:ss");
         var s = adapter.formatDate(new Date(now + nextIntervall), "YYYY-MM-DD hh:mm:ss");
         adapter.log.info("Next Intervall: " + s);
     }
@@ -103,15 +106,12 @@ function updateStates(callback) {
     koubachi.getPlants(function (err, _plants) {
         if (err) return;
         var plants = {};
-        //for (var i = 0; i < _plants.length; i++) {
-        //    plants[_plants[i].plant.id] = _plants[i].plant;
-        //}
         for (var i of _plants) {
             plants[i.plant.id] = i.plant;
         }
         koubachi.getDevices(function (err, _devices) {
             if (err || !_devices) return;
-            var dev = new g_devices.CState(); //name, device.plants.length ? plants[plantId].name : name, list);
+            var dev = new g_devices.CDevice(); //name, device.plants.length ? plants[plantId].name : name, list);
 
             for (var j = 0; j < _devices.length; j++) {
                 var device = _devices[j].device;
@@ -119,27 +119,18 @@ function updateStates(callback) {
                 var id = device.mac_address;
                 var plantId = device.plants[0].id;
                 var name = plants[plantId].name ? plants[plantId].name : id
-                dev.setDevice (id, { showName: name, next_transmission: device.next_transmission} );
+                dev.setDevice (id, { common: { name: name}, next_transmission: device.next_transmission} );
 
-                //for (var i = 0; i < deviceStateNames.length; i++) {
-                //    var stateName = deviceStateNames[i];
-                //    dev.add(stateName, device[stateName]);
-                //}
                 for (var i of deviceStateNames) {
-                    dev.add(i, device[i]);
+                    dev.set(i, device[i]);
                 }
 
                 dev.setChannel(name);
-                //for (var i = 0; i < plantStateNames.length; i++) {
-                //    var stateName = plantStateNames[i];
-                //    dev.add(stateName, plants[plantId][stateName]);
-                //}
                 for (var i of  plantStateNames) {
-                    dev.add(i, plants[plantId][i]);
+                    dev.set(i, plants[plantId][i]);
                 }
-
             }
-            g_devices.update(dev.list);
+            g_devices.update();
 
             calculateNextIntervall();
             if (nextIntervall) {
@@ -152,34 +143,30 @@ function updateStates(callback) {
 
 function main() {
 
-    g_devices.init(adapter, function (err) {
+    koubachi.on('error', function (err) {
+        adapter.log.error("koubachi.on error");
+    }); //.setConfig(adapter.config.appKey, adapter.config.userCredentialsals);
 
-        koubachi.on('error', function (err) {
-            adapter.log.error("koubachi.on error");
-        }); //.setConfig(adapter.config.appKey, adapter.config.userCredentialsals);
+    koubachi.setConfig(adapter.config.appKey, adapter.config.userCredentials);
+    updateStates ();
 
-        koubachi.setConfig(adapter.config.appKey, adapter.config.userCredentials);
-        updateStates ();
 
-    });
-    
-    
     //koubachi.getTasks(plantID, function (err, results) {
     //    var i;
     //    if (err) return console.log('getTasks: ' + err.message);
     //    for (i = 0; i < results.length; i++) {
     //    }
     //});
-    
+
     //koubachi.getReadings(plantID, function (err, results) {
     //    var i;
     //    if (err) return console.log('getReadings: ' + err.message);
-        
+
     //    for (i = 0; i < results.sensors.length; i++) {
     //    }
 
     //});
-    
+
     //adapter.subscribeStates('*');
 }
 
