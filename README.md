@@ -1,23 +1,26 @@
 ![Logo](admin/koubachi.png)
-### ioBroker.koubachi
+#### ioBroker.koubachi
 
-Adapter for Koubachi Sensors
+ioBroker Adapter for Koubachi Sensors
 
 ### Important
-##### Not yet unusable. At the moment, only a base. More shortly.
+
+[Koubachi will retire](http://www.koubachi.com/)
 
 #### Configuration
 App Key and User Credentials reqiured
 
 #### Installation
 Execute the following command in the iobroker root directory (e.g. in /opt/iobroker)
-```
+``
 npm install iobroker.koubachi 
-```
-
+``
 #### Requirements
-To get the app_key and user_credentials, go to Koubachi labs at http://labs.koubachi.com and sign up for access. 
-See also http://koubachi.com  and http://labs.koubachi.com/documentations?locale=en
+
+node.js 4.x.x
+
+To get the app_key and user_credentials, go to [Koubachi labs](http://labs.koubachi.com) and sign up for access. 
+See also [Koubachi](http://koubachi.com) and the [documentation](http://labs.koubachi.com/documentations?locale=en)
 
 ### License
 The MIT License (MIT)

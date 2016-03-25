@@ -1,6 +1,6 @@
 {
   "name": "iobroker.koubachi",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "description": "Koubachi Adapter",
   "author": {
     "name": "soef",
@@ -31,5 +31,6 @@
   "bugs": {
     "url": "https://github.com/soef/iobroker.koubachi/issues"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "main": "main.js"
 }
